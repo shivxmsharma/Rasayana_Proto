@@ -15,6 +15,7 @@ import { Spacing } from '../../constants/Spacing';
 import { Header } from '../../components/common/Header';
 import { CustomInput } from '../../components/common/CustomInput';
 import { CustomButton } from '../../components/common/CustomButton';
+import { useAuth } from '../../contexts/AuthContext';
 
 type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Login'>;
 
@@ -23,6 +24,8 @@ interface Props {
 }
 
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
+  const { login } = useAuth();
+  
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
@@ -63,16 +66,22 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
     
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // For demo purposes, we'll just show success
-      // In a real app, this would set authentication state
+      // Login the user with demo profile
+      login();
+      
       Alert.alert('Success', 'Login successful!');
     } catch (error) {
       Alert.alert('Error', 'Invalid OTP. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickDemo = () => {
+    // Instant access with demo data
+    login();
   };
 
   return (
@@ -123,6 +132,20 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
         )}
 
+        <View style={styles.demoSection}>
+          <Text style={styles.orText}>or</Text>
+          <CustomButton
+            title="Quick Demo Access"
+            onPress={handleQuickDemo}
+            variant="outline"
+            size="large"
+            style={styles.demoButton}
+          />
+          <Text style={styles.demoText}>
+            Try the app instantly with sample data
+          </Text>
+        </View>
+
         <TouchableOpacity
           onPress={() => navigation.navigate('Register')}
           style={styles.registerLink}
@@ -172,6 +195,26 @@ const styles = StyleSheet.create({
     fontSize: Fonts.sizes.sm,
     color: Colors.textSecondary,
     fontFamily: Fonts.regular,
+  },
+  demoSection: {
+    alignItems: 'center',
+    marginVertical: Spacing.lg,
+  },
+  orText: {
+    fontSize: Fonts.sizes.md,
+    color: Colors.textSecondary,
+    fontFamily: Fonts.medium,
+    marginBottom: Spacing.md,
+  },
+  demoButton: {
+    marginBottom: Spacing.sm,
+  },
+  demoText: {
+    fontSize: Fonts.sizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: Spacing.xs,
+    paddingHorizontal: Spacing.lg,
   },
 });
 

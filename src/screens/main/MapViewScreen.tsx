@@ -17,14 +17,8 @@ import { Fonts } from '../../constants/Fonts';
 import { Spacing } from '../../constants/Spacing';
 import { Header } from '../../components/common/Header';
 
-// Conditional import for react-native-maps (only on mobile platforms)
-let MapView: any, Marker: any, Circle: any;
-if (Platform.OS !== 'web') {
-  const maps = require('react-native-maps');
-  MapView = maps.default;
-  Marker = maps.Marker;
-  Circle = maps.Circle;
-}
+// Import react-native-maps only for mobile platforms
+import MapView, { Marker, Circle } from 'react-native-maps';
 
 type MapViewScreenNavigationProp = StackNavigationProp<MainStackParamList, 'MapView'>;
 type MapViewScreenRouteProp = RouteProp<MainStackParamList, 'MapView'>;
@@ -122,83 +116,38 @@ const MapViewScreen: React.FC<Props> = ({ navigation, route }) => {
       />
       
       <View style={styles.mapContainer}>
-        {Platform.OS === 'web' ? (
-          <View style={styles.webMapFallback}>
-            <Ionicons name="location" size={80} color={Colors.primary} />
-            <Text style={styles.webMapTitle}>Location Details</Text>
-            
-            {route.params?.coordinates && (
-              <View style={styles.coordinateInfo}>
-                <Text style={styles.coordinateLabel}>Target Location:</Text>
-                <Text style={styles.coordinateValue}>
-                  {route.params.coordinates.latitude.toFixed(6)}, {route.params.coordinates.longitude.toFixed(6)}
-                </Text>
-              </View>
-            )}
-            
-            {currentLocation && (
-              <View style={styles.coordinateInfo}>
-                <Text style={styles.coordinateLabel}>Current Location:</Text>
-                <Text style={styles.coordinateValue}>
-                  {currentLocation.latitude.toFixed(6)}, {currentLocation.longitude.toFixed(6)}
-                </Text>
-              </View>
-            )}
-            
-            <View style={styles.webCollectionPoints}>
-              <Text style={styles.sectionTitle}>Collection Points:</Text>
-              {collectionPoints.map((point) => (
-                <View key={point.id} style={styles.collectionPoint}>
-                  <View style={[styles.statusIndicator, { backgroundColor: getMarkerColor(point.status) }]} />
-                  <View>
-                    <Text style={styles.pointTitle}>{point.title}</Text>
-                    <Text style={styles.pointDescription}>{point.description}</Text>
-                    <Text style={styles.pointCoordinates}>
-                      {point.coordinate.latitude.toFixed(4)}, {point.coordinate.longitude.toFixed(4)}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </View>
-            
-            <Text style={styles.webMapNote}>
-              Interactive map is available on mobile devices
-            </Text>
-          </View>
-        ) : (
-          <MapView
-            style={styles.map}
-            initialRegion={route.params?.coordinates ? {
-              ...route.params.coordinates,
-              latitudeDelta: 0.0922,
-              longitudeDelta: 0.0421,
-            } : defaultRegion}
-            showsUserLocation={true}
-            showsMyLocationButton={false}
-          >
-            {/* Collection point markers */}
-            {collectionPoints.map((point) => (
-              <Marker
-                key={point.id}
-                coordinate={point.coordinate}
-                title={point.title}
-                description={point.description}
-                pinColor={getMarkerColor(point.status)}
-              />
-            ))}
+        <MapView
+          style={styles.map}
+          initialRegion={route.params?.coordinates ? {
+            ...route.params.coordinates,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0421,
+          } : defaultRegion}
+          showsUserLocation={true}
+          showsMyLocationButton={false}
+        >
+          {/* Collection point markers */}
+          {collectionPoints.map((point) => (
+            <Marker
+              key={point.id}
+              coordinate={point.coordinate}
+              title={point.title}
+              description={point.description}
+              pinColor={getMarkerColor(point.status)}
+            />
+          ))}
 
-            {/* Accuracy circle for current location */}
-            {currentLocation && (
-              <Circle
-                center={currentLocation}
-                radius={50} // 50 meter radius
-                strokeColor={Colors.primary}
-                fillColor={Colors.primary + '20'}
-                strokeWidth={2}
-              />
-            )}
-          </MapView>
-        )}
+          {/* Accuracy circle for current location */}
+          {currentLocation && (
+            <Circle
+              center={currentLocation}
+              radius={50} // 50 meter radius
+              strokeColor={Colors.primary}
+              fillColor={Colors.primary + '20'}
+              strokeWidth={2}
+            />
+          )}
+        </MapView>
 
         {/* Map controls overlay */}
         <View style={styles.mapControls}>
@@ -328,89 +277,6 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     marginLeft: Spacing.xs,
     fontFamily: Fonts.medium,
-  },
-  // Web-specific styles
-  webMapFallback: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.xl,
-    backgroundColor: Colors.gray50,
-  },
-  webMapTitle: {
-    fontSize: Fonts.sizes.xl,
-    fontFamily: Fonts.bold,
-    color: Colors.textPrimary,
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.xl,
-  },
-  coordinateInfo: {
-    backgroundColor: Colors.white,
-    padding: Spacing.md,
-    borderRadius: 8,
-    marginBottom: Spacing.md,
-    width: '100%',
-    maxWidth: 300,
-  },
-  coordinateLabel: {
-    fontSize: Fonts.sizes.sm,
-    fontFamily: Fonts.medium,
-    color: Colors.textSecondary,
-    marginBottom: 4,
-  },
-  coordinateValue: {
-    fontSize: Fonts.sizes.md,
-    fontFamily: Fonts.regular,
-    color: Colors.textPrimary,
-    marginBottom: Spacing.sm,
-  },
-  webCollectionPoints: {
-    width: '100%',
-    maxWidth: 400,
-    marginTop: Spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: Fonts.sizes.lg,
-    fontFamily: Fonts.bold,
-    color: Colors.textPrimary,
-    marginBottom: Spacing.md,
-  },
-  collectionPoint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.white,
-    padding: Spacing.md,
-    borderRadius: 8,
-    marginBottom: Spacing.sm,
-  },
-  statusIndicator: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: Spacing.sm,
-  },
-  pointTitle: {
-    fontSize: Fonts.sizes.md,
-    fontFamily: Fonts.medium,
-    color: Colors.textPrimary,
-  },
-  pointDescription: {
-    fontSize: Fonts.sizes.sm,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-  pointCoordinates: {
-    fontSize: Fonts.sizes.xs,
-    color: Colors.textSecondary,
-    fontFamily: 'monospace',
-    marginTop: 2,
-  },
-  webMapNote: {
-    fontSize: Fonts.sizes.sm,
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginTop: Spacing.xl,
-    fontStyle: 'italic',
   },
 });
 

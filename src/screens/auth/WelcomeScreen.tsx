@@ -28,7 +28,7 @@ const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
       
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>🌿 HerbTrace Farmer</Text>
+          <Text style={styles.title}>🌿 Rasayana</Text>
           
           <View style={styles.logoContainer}>
             <Ionicons name="leaf" size={80} color={Colors.primary} />

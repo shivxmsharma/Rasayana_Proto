@@ -17,6 +17,7 @@ import { Spacing } from '../../constants/Spacing';
 import { Header } from '../../components/common/Header';
 import { CustomInput } from '../../components/common/CustomInput';
 import { CustomButton } from '../../components/common/CustomButton';
+import { useAuth } from '../../contexts/AuthContext';
 
 type RegisterScreenNavigationProp = StackNavigationProp<AuthStackParamList, 'Register'>;
 
@@ -33,6 +34,8 @@ interface FormData {
 }
 
 const RegisterScreen: React.FC<Props> = ({ navigation }) => {
+  const { register } = useAuth();
+  
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
     phone: '',
@@ -76,28 +79,46 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleRegister = async () => {
-    // Basic validation
-    if (!formData.fullName || !formData.phone || !formData.aadhaar) {
-      Alert.alert('Error', 'Please fill in all required fields');
-      return;
-    }
-
     setLoading(true);
     
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Create user profile with entered data or demo data
+      const userProfile = {
+        fullName: formData.fullName || 'Demo Farmer',
+        phone: formData.phone || '+91 9876543210',
+        location: formData.location || 'Rajasthan, India',
+        farmSize: formData.farmSize || '5 acres',
+        profilePhoto: profilePhoto || undefined,
+      };
+      
+      // Register and automatically log in the user
+      register(userProfile);
+      
+      // Optional: Show success message (user will be navigated automatically due to auth state change)
       Alert.alert(
         'Success',
-        'Registration successful! Please login with your credentials.',
-        [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+        'Registration successful! Welcome to HerbTrace Farmer.',
+        [{ text: 'Continue', onPress: () => {} }]
       );
+      
     } catch (error) {
       Alert.alert('Error', 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQuickDemo = () => {
+    // Instant access with demo data
+    register({
+      fullName: 'Demo Farmer',
+      phone: '+91 9876543210',
+      location: 'Rajasthan, India',
+      farmSize: '5 acres',
+    });
   };
 
   return (
@@ -186,6 +207,20 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           size="large"
           style={styles.registerButton}
         />
+        
+        <View style={styles.demoSection}>
+          <Text style={styles.orText}>or</Text>
+          <CustomButton
+            title="Quick Demo Access"
+            onPress={handleQuickDemo}
+            variant="outline"
+            size="large"
+            style={styles.demoButton}
+          />
+          <Text style={styles.demoText}>
+            Skip registration and try the app with sample data
+          </Text>
+        </View>
       </ScrollView>
     </View>
   );
@@ -244,6 +279,26 @@ const styles = StyleSheet.create({
   },
   registerButton: {
     marginVertical: Spacing.xl,
+  },
+  demoSection: {
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+  },
+  orText: {
+    fontSize: Fonts.sizes.md,
+    color: Colors.textSecondary,
+    fontFamily: Fonts.medium,
+    marginBottom: Spacing.md,
+  },
+  demoButton: {
+    marginBottom: Spacing.sm,
+  },
+  demoText: {
+    fontSize: Fonts.sizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: Spacing.xs,
+    paddingHorizontal: Spacing.lg,
   },
 });
 
