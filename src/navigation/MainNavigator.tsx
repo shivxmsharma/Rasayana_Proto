@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../constants/Colors';
 import { MainStackParamList, MainTabParamList } from '../types/navigation';
 
-// Import screens (we'll create these next)
+// Import screens
 import DashboardScreen from '../screens/main/DashboardScreen';
 import CollectionsScreen from '../screens/main/CollectionsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
@@ -24,7 +24,7 @@ const MainTabNavigator: React.FC = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, size }) => {
           let iconName: keyof typeof Ionicons.glyphMap;
 
           if (route.name === 'Dashboard') {
@@ -37,15 +37,22 @@ const MainTabNavigator: React.FC = () => {
             iconName = 'help-outline';
           }
 
-          return <Ionicons name={iconName} size={size} color={color} />;
+          // 👇 Force darker gray for outline (inactive), green for active
+          const iconColor = focused ? Colors.primary : Colors.gray700;
+
+          return <Ionicons name={iconName} size={size} color={iconColor} />;
         },
         tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.gray500,
+        tabBarInactiveTintColor: Colors.gray700, // fallback for labels
         tabBarStyle: {
           backgroundColor: Colors.white,
           borderTopColor: Colors.gray200,
-          paddingTop: 5,
+          height: 60,
           paddingBottom: 5,
+          paddingTop: 5,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
         },
       })}
     >

@@ -11,6 +11,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { CompositeNavigationProp } from '@react-navigation/native';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
+
 import { MainStackParamList, MainTabParamList } from '../../types/navigation';
 import { Colors } from '../../constants/Colors';
 import { Fonts } from '../../constants/Fonts';
@@ -30,23 +31,38 @@ interface Props {
 
 const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const currentHour = new Date().getHours();
-  const greeting = currentHour < 12 ? 'Good Morning' : currentHour < 17 ? 'Good Afternoon' : 'Good Evening';
+  const greeting =
+    currentHour < 12
+      ? 'Good Morning'
+      : currentHour < 17
+      ? 'Good Afternoon'
+      : 'Good Evening';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.greeting}>🌿 {greeting}, Rajesh</Text>
         <View style={styles.headerIcons}>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="notifications-outline" size={24} color={Colors.textPrimary} />
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={Colors.textPrimary}
+            />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton}>
-            <Ionicons name="menu-outline" size={24} color={Colors.textPrimary} />
+            <Ionicons
+              name="menu-outline"
+              size={24}
+              color={Colors.textPrimary}
+            />
           </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Stats Section */}
         <View style={styles.statsCard}>
           <Text style={styles.statsTitle}>Today's Stats</Text>
           <View style={styles.statsRow}>
@@ -65,6 +81,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
 
+        {/* Recent Collections */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Collections:</Text>
           <View style={styles.batchGrid}>
@@ -72,13 +89,16 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
               <View key={batch.id} style={styles.batchGridItem}>
                 <BatchCard
                   batch={batch}
-                  onPress={() => navigation.navigate('BatchDetail', { batchId: batch.id })}
+                  onPress={() =>
+                    navigation.navigate('BatchDetail', { batchId: batch.id })
+                  }
                 />
               </View>
             ))}
           </View>
         </View>
 
+        {/* New Collection Button */}
         <CustomButton
           title="+ New Collection"
           onPress={() => navigation.navigate('NewCollection')}
@@ -86,6 +106,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
           style={styles.newCollectionButton}
         />
 
+        {/* Quick Actions */}
         <View style={styles.quickActions}>
           <TouchableOpacity
             style={styles.quickAction}
@@ -94,6 +115,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="list" size={24} color={Colors.primary} />
             <Text style={styles.quickActionText}>Batches</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.quickAction}
             onPress={() => navigation.navigate('Profile')}
@@ -101,6 +123,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
             <Ionicons name="person" size={24} color={Colors.primary} />
             <Text style={styles.quickActionText}>Profile</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
             style={styles.quickAction}
             onPress={() => navigation.navigate('Settings')}

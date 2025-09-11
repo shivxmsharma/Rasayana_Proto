@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -6,18 +6,20 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { CompositeNavigationProp } from '@react-navigation/native';
-import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
-import { MainStackParamList, MainTabParamList } from '../../types/navigation';
 import { Colors } from '../../constants/Colors';
 import { Fonts } from '../../constants/Fonts';
 import { Spacing } from '../../constants/Spacing';
 import { CustomButton } from '../../components/common/CustomButton';
 import { mockStats } from '../../data/mockData';
+import * as ImagePicker from 'expo-image-picker';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { MainTabParamList, MainStackParamList } from '../../types/navigation';
 
 type ProfileNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList, 'Profile'>,
@@ -43,12 +45,86 @@ const achievements: Achievement[] = [
 ];
 
 const ProfileScreen: React.FC<Props> = ({ navigation }) => {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const defaultImage = require('../../../assets/default-profile.png');
+
   const farmerData = {
     name: 'Rajesh Kumar',
     farmerId: 'F001',
     phone: '+91 98765 43210',
     location: 'Rajasthan, India',
     joinDate: 'January 2024',
+  };
+
+  const handleGalleryAccess = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (!permissionResult.granted) {
+        alert('Permission to access gallery is required!');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0].uri) {
+        setSelectedImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error accessing gallery:', error);
+      alert('Error accessing gallery');
+    }
+  };
+
+  const handleCameraAccess = async () => {
+    try {
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      
+      if (!permissionResult.granted) {
+        alert('Permission to access camera is required!');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0].uri) {
+        setSelectedImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      alert('Error accessing camera');
+    }
+  };
+
+  const handleImagePick = () => {
+    Alert.alert(
+      'Change Profile Picture',
+      'Choose a source',
+      [
+        {
+          text: 'Camera',
+          onPress: handleCameraAccess,
+        },
+        {
+          text: 'Gallery',
+          onPress: handleGalleryAccess,
+        },
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   return (
@@ -61,13 +137,17 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-        {/* Profile Header */}
         <View style={styles.profileHeader}>
           <View style={styles.profileImageContainer}>
-            <View style={styles.profileImage}>
-              <Ionicons name="person" size={50} color={Colors.gray400} />
-            </View>
-            <TouchableOpacity style={styles.editImageButton}>
+            <Image 
+              source={selectedImage ? { uri: selectedImage } : defaultImage}
+              style={styles.profileImage}
+              defaultSource={defaultImage}
+            />
+            <TouchableOpacity 
+              style={styles.editImageButton}
+              onPress={handleImagePick}
+            >
               <Ionicons name="camera" size={16} color={Colors.white} />
             </TouchableOpacity>
           </View>
@@ -144,7 +224,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.actionButtons}>
           <CustomButton
             title="Edit Profile"
-            onPress={() => {/* Navigate to edit profile */}}
+            onPress={() => console.log('Edit Profile')} // Add actual handler
             variant="outline"
             size="medium"
             style={styles.actionButton}
@@ -152,7 +232,7 @@ const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           
           <CustomButton
             title="Certificates"
-            onPress={() => {/* Navigate to certificates */}}
+            onPress={() => console.log('Certificates')} // Add actual handler
             variant="outline"
             size="medium"
             style={styles.actionButton}
@@ -226,14 +306,16 @@ const styles = StyleSheet.create({
   profileImageContainer: {
     position: 'relative',
     marginBottom: Spacing.md,
+    borderRadius: 50,
+    borderWidth: 3,
+    borderColor: Colors.primary,
+    padding: 2,
   },
   profileImage: {
     width: 100,
     height: 100,
     borderRadius: 50,
     backgroundColor: Colors.gray200,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   editImageButton: {
     position: 'absolute',
@@ -245,6 +327,11 @@ const styles = StyleSheet.create({
     height: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 2,
+    shadowColor: Colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   farmerName: {
     fontSize: Fonts.sizes.xxl,

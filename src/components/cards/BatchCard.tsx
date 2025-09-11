@@ -53,18 +53,29 @@ export const BatchCard: React.FC<BatchCardProps> = ({ batch, onPress }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={styles.header}>
-        <Text style={styles.batchId}>{batch.id}</Text>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(batch.status) }]}>
-          <Ionicons 
-            name={getStatusIcon(batch.status) as any} 
-            size={12} 
-            color={Colors.white} 
-          />
-          <Text style={styles.statusText}>{getStatusText(batch.status)}</Text>
+        {/* Batch ID and Status stacked vertically */}
+        <View style={styles.batchIdContainer}>
+          <Text style={styles.batchId}>{batch.id}</Text>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: getStatusColor(batch.status) },
+            ]}
+          >
+            <Ionicons
+              name={getStatusIcon(batch.status) as any}
+              size={12}
+              color={Colors.white}
+            />
+            <Text style={styles.statusText}>{getStatusText(batch.status)}</Text>
+          </View>
         </View>
       </View>
-      
-      <Text style={styles.species}>{batch.species} • {batch.quantity}</Text>
+
+      {/* Remaining details */}
+      <Text style={styles.species}>
+        {batch.species} • {batch.quantity}
+      </Text>
       <Text style={styles.date}>{batch.date}</Text>
       <Text style={styles.value}>{batch.estimatedValue} estimated</Text>
     </TouchableOpacity>
@@ -83,18 +94,27 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start', // aligns top cleanly
     marginBottom: Spacing.sm,
   },
+
+  /* Added container to stack ID and Status vertically */
+  batchIdContainer: {
+    alignItems: 'flex-start',
+  },
+
   batchId: {
     fontSize: Fonts.sizes.md,
     fontFamily: Fonts.bold,
     color: Colors.primary,
     fontWeight: '600',
+    marginBottom: Spacing.xs, // space between ID and status
   },
+
   statusBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -102,6 +122,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.xs,
     borderRadius: 12,
   },
+
   statusText: {
     fontSize: Fonts.sizes.xs,
     color: Colors.white,
@@ -109,16 +130,19 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.medium,
     fontWeight: '500',
   },
+
   species: {
     fontSize: Fonts.sizes.sm,
     color: Colors.textSecondary,
     marginBottom: 2,
   },
+
   date: {
     fontSize: Fonts.sizes.sm,
     color: Colors.textSecondary,
     marginBottom: 4,
   },
+
   value: {
     fontSize: Fonts.sizes.sm,
     color: Colors.primary,

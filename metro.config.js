@@ -1,11 +1,13 @@
 const { getDefaultConfig } = require('expo/metro-config');
 
-const config = getDefaultConfig(__dirname);
+const defaultConfig = getDefaultConfig(__dirname);
 
-// Platform-specific module resolution
-config.resolver.platforms = ['ios', 'android', 'native', 'web'];
-
-// Add platform extensions
-config.resolver.sourceExts.push('web.js', 'web.ts', 'web.tsx');
-
-module.exports = config;
+module.exports = {
+  ...defaultConfig,
+  resolver: {
+    ...defaultConfig.resolver,
+    platforms: ['ios', 'android', 'native', 'web'],
+    sourceExts: [...defaultConfig.resolver.sourceExts, 'web.js', 'web.ts', 'web.tsx'],
+    assetExts: [...defaultConfig.resolver.assetExts, 'png', 'jpg', 'jpeg']
+  }
+};
